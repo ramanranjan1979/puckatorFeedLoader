@@ -39,5 +39,27 @@ namespace puckatorFeedLoader.BO
 
         public string  ImagesUrl { get; set; }
     }
+
+    public class ProductImage
+    {
+        public string ProductModel { get; set; }
+        public List<Image> ImageList { get; set; }       
+
+    }
+
+    public class Image
+    {
+        public bool IsMain { get; set; }
+        public int Number { get; set; }
+        public string FileName { get; set; }
+        
+    }
+
+    public class Productcode
+    {
+        public string ProductModel { get; set; }
+        public string code { get; set; }
+
+    }
 }
 

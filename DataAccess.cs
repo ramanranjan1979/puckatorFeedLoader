@@ -58,5 +58,41 @@ namespace puckatorFeedLoader
             con.Close();
 
         }
+
+        public void UpsertProductCode(string model, string code, bool active)
+        {
+            SqlConnection con = new System.Data.SqlClient.SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
+            con.Open();
+
+            SqlCommand cmd = new SqlCommand("UpsertProductCode", con);
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("model", model);
+            cmd.Parameters.AddWithValue("ean", code);
+            cmd.Parameters.AddWithValue("active", active);
+
+            cmd.ExecuteNonQuery();
+
+            con.Close();
+
+        }
+
+        public void UpsertProductImage(string model,string filename, int number, bool ismain, bool active)
+        {
+            SqlConnection con = new System.Data.SqlClient.SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
+            con.Open();
+
+            SqlCommand cmd = new SqlCommand("UpsertProductImage", con);
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("model", model);
+            cmd.Parameters.AddWithValue("filename", filename);
+            cmd.Parameters.AddWithValue("number", number);
+            cmd.Parameters.AddWithValue("ismain", ismain);
+            cmd.Parameters.AddWithValue("active", active);
+
+            cmd.ExecuteNonQuery();
+
+            con.Close();
+
+        }
     }
 }

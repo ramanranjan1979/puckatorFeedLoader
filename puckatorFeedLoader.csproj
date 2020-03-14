@@ -53,6 +53,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="File\barcodes.csv" />
+    <None Include="File\image_paths.csv" />
+    <None Include="File\product.csv" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="File\EAN\" />
+    <Folder Include="File\Image\" />
+    <Folder Include="File\Product\" />
+    <Folder Include="File\Stock\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -17,5 +17,10 @@ namespace puckatorFeedLoader
         {
             return int.Parse(rawString.ToString().Replace('\"', ' ').Trim());
         }
+
+        public static string GetFileNameWithTimestamp(string extension)
+        {
+            return $"{DateTime.Now.Day}-{DateTime.Now.Month}-{DateTime.Now.Year}-{DateTime.Now.Hour}-{DateTime.Now.Minute}-{DateTime.Now.Second}.{extension}";
+        }
     }
 }
