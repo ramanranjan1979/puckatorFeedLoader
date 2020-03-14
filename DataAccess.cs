@@ -11,6 +11,8 @@ namespace puckatorFeedLoader
     {
         private static string connectionString = System.Configuration.ConfigurationSettings.AppSettings["DbConnection"];
 
+
+
         public void UpsertCategory(int categoryId,int parentCategoryId,string description,bool active)
         {
             SqlConnection con = new System.Data.SqlClient.SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
