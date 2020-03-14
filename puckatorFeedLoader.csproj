@@ -34,6 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
@@ -44,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BO\Catalogue.cs" />
+    <Compile Include="BO\Product.cs" />
     <Compile Include="BO\Category.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="DataAccess.cs" />
@@ -54,13 +57,13 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="File\barcodes.csv" />
+    <None Include="File\EAN\barcodes.csv" />
+    <None Include="File\Image\image_paths.csv" />
     <None Include="File\image_paths.csv" />
     <None Include="File\product.csv" />
+    <None Include="File\Product\product.csv" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="File\EAN\" />
-    <Folder Include="File\Image\" />
-    <Folder Include="File\Product\" />
     <Folder Include="File\Stock\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

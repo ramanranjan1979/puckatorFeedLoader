@@ -18,8 +18,12 @@ namespace puckatorFeedLoader
         private static string categoryUrl = string.Empty;
         private static string productUrl = string.Empty;
         private static string productBarcodeUrl = string.Empty;
+        private static string productImageUrl = string.Empty;
+
+        private static List<Catalogue> myCatalogue = null;
 
         private static Service myservice = null;
+        private static int catalogueLevel = 0;
 
         private static DataAccess dbAccess = null;
 
@@ -37,30 +41,66 @@ namespace puckatorFeedLoader
 
             //LoadProductData();
 
-            //LoadProductImagesData();
+            //LoadProductImagesData(false);
 
-            LoadProductBarCodeData(true);
+            //LoadProductBarCodeData(false);
+
+            RefreshCatalogue();
 
 
         }
 
+        private static void RefreshCatalogue(int parentCategory = 0)
+        {
+            var data = dbAccess.GetCategoryByParentCategoryId(parentCategory);
 
+            foreach (System.Data.DataRow d in data.Tables[0].Rows)
+            {
+                var cat = new Catalogue()
+                {
+                    ID = int.Parse(d.ItemArray[0].ToString()),
+                    CategoryId = int.Parse(d.ItemArray[1].ToString()),
+                    ParentCategoryId = int.Parse(d.ItemArray[2].ToString()),
+                    Description = d.ItemArray[3].ToString()                    
+                };
+
+                myCatalogue.Add(cat);
+
+                if (dbAccess.GetCategoryByParentCategoryId(cat.CategoryId).Tables[0].Rows.Count > 0)
+                {
+                    cat.ChildCatalogue = new List<Catalogue>
+                    {
+                        AddCatalogue(cat.CategoryId)
+                    };
+                    RefreshCatalogue(cat.CategoryId);
+                }
+
+                catalogueLevel++;
+            }
+        }
+
+        private static Catalogue AddCatalogue(int categoryId)
+        {
+            return new Catalogue() { CategoryId = categoryId };
+        }
 
         private static void LoadMetaData()
         {
             myservice = new Service();
             dbAccess = new DataAccess();
 
-            UserName = System.Configuration.ConfigurationSettings.AppSettings["FeedLoadUserName"];
-            password = System.Configuration.ConfigurationSettings.AppSettings["FeedLoadUserPassword"];
-            categoryUrl = System.Configuration.ConfigurationSettings.AppSettings["CategoryDataUrl"];
-            productUrl = System.Configuration.ConfigurationSettings.AppSettings["ProductDataUrl"];
-            productBarcodeUrl = System.Configuration.ConfigurationSettings.AppSettings["EANDataUrl"];
+            UserName = System.Configuration.ConfigurationManager.AppSettings["FeedLoadUserName"];
+            password = System.Configuration.ConfigurationManager.AppSettings["FeedLoadUserPassword"];
+            categoryUrl = System.Configuration.ConfigurationManager.AppSettings["CategoryDataUrl"];
+            productUrl = System.Configuration.ConfigurationManager.AppSettings["ProductDataUrl"];
+            productBarcodeUrl = System.Configuration.ConfigurationManager.AppSettings["EANDataUrl"];
+            productImageUrl = System.Configuration.ConfigurationManager.AppSettings["ImageDataUrl"];
+            productFilePath = System.Configuration.ConfigurationManager.AppSettings["ProductFilePath"];
+            productImagePath = System.Configuration.ConfigurationManager.AppSettings["ProductImagesFilePath"];
+            productBarcodeFilePath = System.Configuration.ConfigurationManager.AppSettings["ProductBarcodeFilePath"];
 
-            productFilePath = System.Configuration.ConfigurationSettings.AppSettings["ProductFilePath"];
-            productImagePath = System.Configuration.ConfigurationSettings.AppSettings["ProductImagesFilePath"];
-            productBarcodeFilePath = System.Configuration.ConfigurationSettings.AppSettings["ProductBarcodeFilePath"];
-            
+            myCatalogue = new List<Catalogue>();
+
         }
 
         private static void LoadProductData()
@@ -175,12 +215,20 @@ namespace puckatorFeedLoader
             }
         }
 
-        private static void LoadProductImagesData()
+        private static void LoadProductImagesData(bool loadFromUrl)
         {
             try
             {
                 var data = string.Empty;
-                using (var reader = new StreamReader(productImagePath))
+                var filepath = Path.Combine(productImagePath, $"Image_paths.csv");
+
+                if (loadFromUrl)
+                {
+                    filepath = Path.Combine(productImagePath, $"Images_{Common.GetFileNameWithTimestamp("csv")}");
+                    myservice.DownLoadFile(productImageUrl, filepath);
+                }
+
+                using (var reader = new StreamReader(filepath))
                 {
                     StringBuilder sb = new StringBuilder();
                     while (!reader.EndOfStream)
@@ -200,8 +248,10 @@ namespace puckatorFeedLoader
                         Regex CSVParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
                         string[] fields = CSVParser.Split(item);
 
-                        ProductImage pi = new ProductImage();
-                        pi.ImageList = new List<Image>();
+                        ProductImage pi = new ProductImage
+                        {
+                            ImageList = new List<Image>()
+                        };
 
                         int totalImageCount = fields.Length - 1;
                         pi.ProductModel = Common.GetString(fields.GetValue(0).ToString());
@@ -234,16 +284,20 @@ namespace puckatorFeedLoader
             }
         }
 
-        private static void LoadProductBarCodeData(bool mode)
+        private static void LoadProductBarCodeData(bool loadFromUrl)
         {
             try
             {
-                string requestUrl = productBarcodeUrl;
-                var filepath = Path.Combine(productBarcodeFilePath,$"Barcode_{Common.GetFileNameWithTimestamp("csv")}");
-                myservice.DownLoadFile(productBarcodeUrl, filepath);
+                var filepath = Path.Combine(productBarcodeFilePath, $"barcodes.csv");
+
+                if (loadFromUrl)
+                {
+                    filepath = Path.Combine(productBarcodeFilePath, $"Barcode_{Common.GetFileNameWithTimestamp("csv")}");
+                    myservice.DownLoadFile(productBarcodeUrl, filepath);
+                }
 
                 var data = string.Empty;
-                using (var reader = new StreamReader(@"D:\Visual Studio 2019\puckatorFeedLoader\File\EAN\Barcode_14-3-2020-9-1-12.csv"))
+                using (var reader = new StreamReader(filepath))
                 {
                     StringBuilder sb = new StringBuilder();
                     while (!reader.EndOfStream)

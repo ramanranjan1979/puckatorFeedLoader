@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
+using System.Data;
 
 namespace puckatorFeedLoader
 {
@@ -13,11 +14,11 @@ namespace puckatorFeedLoader
 
         public void UpsertCategory(int categoryId,int parentCategoryId,string description,bool active)
         {
-            SqlConnection con = new System.Data.SqlClient.SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
+            SqlConnection con = new SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
             con.Open();
 
             SqlCommand cmd = new SqlCommand("UpsertCategory", con);
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("categoryId", categoryId);
             cmd.Parameters.AddWithValue("parentcategoryId", parentCategoryId);
             cmd.Parameters.AddWithValue("description", description);
@@ -33,11 +34,11 @@ namespace puckatorFeedLoader
 
         public void UpsertProduct(int productId,string model,string ean,string name,string description,string dimension,string price,string deliveryCode,string quantity,string categories,string options,string moq,string imageUrl)
         {
-            SqlConnection con = new System.Data.SqlClient.SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
+            SqlConnection con = new SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
             con.Open();
 
             SqlCommand cmd = new SqlCommand("UpsertProduct", con);
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("productId", productId);
             cmd.Parameters.AddWithValue("model", model);
             cmd.Parameters.AddWithValue("ean", ean);
@@ -61,11 +62,11 @@ namespace puckatorFeedLoader
 
         public void UpsertProductCode(string model, string code, bool active)
         {
-            SqlConnection con = new System.Data.SqlClient.SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
+            SqlConnection con = new SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
             con.Open();
 
             SqlCommand cmd = new SqlCommand("UpsertProductCode", con);
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("model", model);
             cmd.Parameters.AddWithValue("ean", code);
             cmd.Parameters.AddWithValue("active", active);
@@ -78,11 +79,11 @@ namespace puckatorFeedLoader
 
         public void UpsertProductImage(string model,string filename, int number, bool ismain, bool active)
         {
-            SqlConnection con = new System.Data.SqlClient.SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
+            SqlConnection con = new SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
             con.Open();
 
             SqlCommand cmd = new SqlCommand("UpsertProductImage", con);
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("model", model);
             cmd.Parameters.AddWithValue("filename", filename);
             cmd.Parameters.AddWithValue("number", number);
@@ -92,6 +93,48 @@ namespace puckatorFeedLoader
             cmd.ExecuteNonQuery();
 
             con.Close();
+
+        }
+
+        public DataSet GetCategoryByParentCategoryId(int parentCategoryId)
+        {
+            SqlConnection con = new SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
+            con.Open();
+
+            SqlCommand cmd = new SqlCommand("GetCategoryByParentCategoryId", con)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.AddWithValue("parentCategoryId", parentCategoryId);        
+            cmd.ExecuteNonQuery();
+
+            SqlDataAdapter sda = new SqlDataAdapter(cmd);
+            DataSet ds = new DataSet();
+            sda.Fill(ds);
+            con.Close();
+
+            return ds;
+
+        }
+
+        public DataSet GetCategoryById(int categoryId)
+        {
+            SqlConnection con = new SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
+            con.Open();
+
+            SqlCommand cmd = new SqlCommand("GetCategoryByParentCategoryId", con)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.AddWithValue("CategoryId", categoryId);
+            cmd.ExecuteNonQuery();
+
+            SqlDataAdapter sda = new SqlDataAdapter(cmd);
+            DataSet ds = new DataSet();
+            sda.Fill(ds);
+            con.Close();
+
+            return ds;
 
         }
     }
