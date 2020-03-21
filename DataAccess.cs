@@ -10,11 +10,16 @@ namespace puckatorFeedLoader
 {
     class DataAccess
     {
-        private static string connectionString = System.Configuration.ConfigurationSettings.AppSettings["DbConnection"];
+        private  string _con = string.Empty;
+
+        public DataAccess(string connectionString )
+        {
+            _con = connectionString; ;
+        }
 
         public void UpsertCategory(int categoryId,int parentCategoryId,string description,bool active)
         {
-            SqlConnection con = new SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
+            SqlConnection con = new SqlConnection(_con);
             con.Open();
 
             SqlCommand cmd = new SqlCommand("UpsertCategory", con);
@@ -34,7 +39,7 @@ namespace puckatorFeedLoader
 
         public void UpsertProduct(int productId,string model,string ean,string name,string description,string dimension,string price,string deliveryCode,string quantity,string categories,string options,string moq,string imageUrl)
         {
-            SqlConnection con = new SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
+            SqlConnection con = new SqlConnection(_con);
             con.Open();
 
             SqlCommand cmd = new SqlCommand("UpsertProduct", con);
@@ -62,7 +67,7 @@ namespace puckatorFeedLoader
 
         public void UpsertProductCode(string model, string code, bool active)
         {
-            SqlConnection con = new SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
+            SqlConnection con = new SqlConnection(_con);
             con.Open();
 
             SqlCommand cmd = new SqlCommand("UpsertProductCode", con);
@@ -79,7 +84,7 @@ namespace puckatorFeedLoader
 
         public void UpsertProductImage(string model,string filename, int number, bool ismain, bool active)
         {
-            SqlConnection con = new SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
+            SqlConnection con = new SqlConnection(_con);
             con.Open();
 
             SqlCommand cmd = new SqlCommand("UpsertProductImage", con);
@@ -98,7 +103,7 @@ namespace puckatorFeedLoader
 
         public DataSet GetCategoryByParentCategoryId(int parentCategoryId)
         {
-            SqlConnection con = new SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
+            SqlConnection con = new SqlConnection(_con);
             con.Open();
 
             SqlCommand cmd = new SqlCommand("GetCategoryByParentCategoryId", con)
@@ -119,7 +124,7 @@ namespace puckatorFeedLoader
 
         public DataSet GetCategoryById(int categoryId)
         {
-            SqlConnection con = new SqlConnection("data source=DESKTOP-1CQE15U;initial catalog=PUCKSOURCE;integrated security=True;MultipleActiveResultSets=True;");
+            SqlConnection con = new SqlConnection(_con);
             con.Open();
 
             SqlCommand cmd = new SqlCommand("GetCategoryByParentCategoryId", con)

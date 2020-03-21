@@ -37,15 +37,15 @@ namespace puckatorFeedLoader
 
             LoadMetaData();
 
-            //LoadCategoryData();
+            LoadCategoryData();
 
-            //LoadProductData();
+            LoadProductData();
 
-            //LoadProductImagesData(false);
+            LoadProductImagesData(false);
 
-            //LoadProductBarCodeData(false);
+            LoadProductBarCodeData(false);
 
-            RefreshCatalogue();
+            //RefreshCatalogue();
 
 
         }
@@ -87,7 +87,7 @@ namespace puckatorFeedLoader
         private static void LoadMetaData()
         {
             myservice = new Service();
-            dbAccess = new DataAccess();
+            dbAccess = new DataAccess(System.Configuration.ConfigurationManager.AppSettings["DbConnection"]);
 
             UserName = System.Configuration.ConfigurationManager.AppSettings["FeedLoadUserName"];
             password = System.Configuration.ConfigurationManager.AppSettings["FeedLoadUserPassword"];
