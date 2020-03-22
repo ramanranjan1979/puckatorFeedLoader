@@ -7,7 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "puckatorFeedLoader", "pucka
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Database", "Database\Database.sqlproj", "{41C68798-4BBE-46CA-B5CF-EBED630C982B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GiftHub", "GiftHub\GiftHub.csproj", "{F85C13CA-B5E1-4591-B4E8-3ACDF4CEA367}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GiftHub", "GiftHub\GiftHub.csproj", "{F85C13CA-B5E1-4591-B4E8-3ACDF4CEA367}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PuckFeedFunctionApp", "PuckFeedFunctionApp\PuckFeedFunctionApp.csproj", "{A1F39527-1AE0-4107-B066-4E25A4E8CB08}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,10 @@ Global
 		{F85C13CA-B5E1-4591-B4E8-3ACDF4CEA367}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F85C13CA-B5E1-4591-B4E8-3ACDF4CEA367}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F85C13CA-B5E1-4591-B4E8-3ACDF4CEA367}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1F39527-1AE0-4107-B066-4E25A4E8CB08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1F39527-1AE0-4107-B066-4E25A4E8CB08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1F39527-1AE0-4107-B066-4E25A4E8CB08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1F39527-1AE0-4107-B066-4E25A4E8CB08}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
