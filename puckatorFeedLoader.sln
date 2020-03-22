@@ -9,7 +9,7 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Database", "Database\Databa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GiftHub", "GiftHub\GiftHub.csproj", "{F85C13CA-B5E1-4591-B4E8-3ACDF4CEA367}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PuckFeedFunctionApp", "PuckFeedFunctionApp\PuckFeedFunctionApp.csproj", "{A1F39527-1AE0-4107-B066-4E25A4E8CB08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PuckFeedFunctionApp", "PuckFeedFunctionApp\PuckFeedFunctionApp.csproj", "{A1F39527-1AE0-4107-B066-4E25A4E8CB08}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
