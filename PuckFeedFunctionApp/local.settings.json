@@ -1,0 +1,8 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=puckstore;AccountKey=tFLDYQOSHmlEORquVHCxN3RMKATRUJtp5zjEzTKpZfYSaSMFtZTy97TrGE5UcQ1KPclsQpxLF7VWSP5vmB//KQ==;BlobEndpoint=https://puckstore.blob.core.windows.net/;TableEndpoint=https://puckstore.table.core.windows.net/;QueueEndpoint=https://puckstore.queue.core.windows.net/;FileEndpoint=https://puckstore.file.core.windows.net/",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "MyConnectionString": "Data Source=modizson.database.windows.net;Initial Catalog=PUCKSOURCE;User ID=modizson;Password=Year2020$;Connect Timeout=60;Encrypt=True;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"
+  }
+}
