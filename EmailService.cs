@@ -90,7 +90,7 @@ namespace puckatorFeedLoader
             return res;
         }
 
-        public void NotifyProductFileCreation(List<string> messageLine)
+        public void NotifyFileCreation(List<string> messageLine, string subject)
         {
             StringBuilder sb = new StringBuilder().AppendLine($"DateTime: {DateTime.Now}");
             foreach (var item in messageLine)
@@ -104,10 +104,10 @@ namespace puckatorFeedLoader
                 { "MESSAGE", sb.ToString()}
             };
             string html = GetHtml(Path.Combine(Common.GetBaseDirectory(), System.Configuration.ConfigurationManager.AppSettings["mxTemplatePath"], "tmpDefault.html"), param);
-            EmailBySMTP(System.Configuration.ConfigurationManager.AppSettings["SMTP_TO"], System.Configuration.ConfigurationManager.AppSettings["SMTP_FROM"], html, "Puck Product File Creation");
+            EmailBySMTP(System.Configuration.ConfigurationManager.AppSettings["SMTP_TO"], System.Configuration.ConfigurationManager.AppSettings["SMTP_FROM"], html, subject);
         }
 
-        public void NotifyException(string data)
+        public void NotifyException(string data, string subject)
         {
             var message = $"DateTime: {DateTime.Now} {Environment.NewLine} {data.ToUpper()}";
             Dictionary<string, string> param = new Dictionary<string, string>
@@ -116,7 +116,7 @@ namespace puckatorFeedLoader
                 { "MESSAGE", message }
             };
             string html = GetHtml(Path.Combine(Common.GetBaseDirectory(), System.Configuration.ConfigurationManager.AppSettings["mxTemplatePath"], "tmpDefault.html"), param);
-            EmailBySMTP(System.Configuration.ConfigurationManager.AppSettings["SMTP_TO"], System.Configuration.ConfigurationManager.AppSettings["SMTP_FROM"], html, "Puck Product File Creation");
+            EmailBySMTP(System.Configuration.ConfigurationManager.AppSettings["SMTP_TO"], System.Configuration.ConfigurationManager.AppSettings["SMTP_FROM"], html, subject);
         }
     }
 }

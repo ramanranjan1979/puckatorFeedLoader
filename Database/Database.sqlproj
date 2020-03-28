@@ -164,5 +164,8 @@
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
     <Build Include="Security\Permissions.sql" />
+    <Build Include="dbo\Tables\Setting.sql" />
+    <Build Include="dbo\Tables\LogType.sql" />
+    <Build Include="dbo\Tables\Log.sql" />
   </ItemGroup>
 </Project>

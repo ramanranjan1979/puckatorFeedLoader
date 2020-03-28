@@ -33,8 +33,15 @@ namespace puckatorFeedLoader
         private static string productImagePath = string.Empty;
         private static string productBarcodeFilePath = string.Empty;
 
-        private static string sourceFolder = string.Empty;
+        private static string Product_SourceFolder = string.Empty;
+        private static string ProductCategory_SourceFolder = string.Empty;
+        private static string ProductImage_SourceFolder = string.Empty;
+        private static string ProductCode_SourceFolder = string.Empty;
+
         private static string ProductDestinationContainer = string.Empty;
+        private static string CategoryDestinationContainer = string.Empty;
+        private static string ImageDestinationContainer = string.Empty;
+        private static string BarcodeDestinationContainer = string.Empty;
 
         static void Main(string[] args)
         {
@@ -42,17 +49,17 @@ namespace puckatorFeedLoader
 
             LoadMetaData();
 
-            //LoadCategoryData();
+            CreateProductFile();
 
-            //LoadProductData();
+            CreateCategoryFileFile();
 
-            //LoadProductImagesData(false);
+            CreateProductImageFile();
 
             //LoadProductBarCodeData(false);
 
             //RefreshCatalogue();
 
-            CreateProductFile();
+
 
 
         }
@@ -108,138 +115,28 @@ namespace puckatorFeedLoader
             productImagePath = System.Configuration.ConfigurationManager.AppSettings["ProductImagesFilePath"];
             productBarcodeFilePath = System.Configuration.ConfigurationManager.AppSettings["ProductBarcodeFilePath"];
 
-            sourceFolder = System.Configuration.ConfigurationManager.AppSettings["SourceFolder"];
+            Product_SourceFolder = System.Configuration.ConfigurationManager.AppSettings["Product_SourceFolder"];
             ProductDestinationContainer = System.Configuration.ConfigurationManager.AppSettings["ProductDestinationContainer"];
+
+            ProductCategory_SourceFolder = System.Configuration.ConfigurationManager.AppSettings["ProductCategory_SourceFolder"];
+            CategoryDestinationContainer = System.Configuration.ConfigurationManager.AppSettings["CategoryDestinationContainer"];
+
+            ProductImage_SourceFolder = System.Configuration.ConfigurationManager.AppSettings["ProductImage_SourceFolder"];
+            ImageDestinationContainer = System.Configuration.ConfigurationManager.AppSettings["ImageDestinationContainer"];
+
+            ProductCode_SourceFolder = System.Configuration.ConfigurationManager.AppSettings["ProductCode_SourceFolder"];
+            BarcodeDestinationContainer = System.Configuration.ConfigurationManager.AppSettings["BarcodeDestinationContainer"];
 
             myCatalogue = new List<Catalogue>();
 
         }
 
-        private static void LoadProductData()
-        {
-            try
-            {
-                string requestUrl = $"{productUrl}?email={UserName}&passwd={password}&action=full";
-                var data = feedService.DownLoadStringData(requestUrl);
-                if (data.Length > 0)
-                {
-                    if (data.ToUpper() == "<br>Dropship Feed Error: You must wait 2 hours between product feed requests.".ToUpper())
-                    {
-                        using (var reader = new StreamReader(productFilePath))
-                        {
-                            StringBuilder sb = new StringBuilder();
-                            while (!reader.EndOfStream)
-                            {
-                                var line = reader.ReadLine();
-                                sb.AppendLine(line);
-                            }
-
-                            data = sb.ToString();
-                        }
-                    }
-
-
-                    var raw = data.Split('\n');
-                    int rowSkip = 1;
-                    foreach (var item in raw)
-                    {
-                        if (rowSkip > 2)
-                        {
-                            Regex CSVParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
-                            String[] categoryData = CSVParser.Split(item);
-
-
-                            if (categoryData.Length != 13)
-                            {
-                                continue;
-                            }
-
-                            Product Obj = new Product()
-                            {
-                                ProductId = Common.GetInt(categoryData.GetValue(0).ToString()),
-                                Model = Common.GetString(categoryData.GetValue(1).ToString()),
-                                EAN = Common.GetString(categoryData.GetValue(2).ToString()),
-                                Name = Common.GetString(categoryData.GetValue(3).ToString()),
-                                Description = Common.GetString(categoryData.GetValue(4).ToString()),
-                                Dimension = Common.GetString(categoryData.GetValue(5).ToString()),
-                                Price = Common.GetString(categoryData.GetValue(6).ToString()),
-                                DeliveryCode = Common.GetString(categoryData.GetValue(7).ToString()),
-                                Quantity = Common.GetString(categoryData.GetValue(8).ToString()),
-                                Categories = Common.GetString(categoryData.GetValue(9).ToString()),
-                                Options = Common.GetString(categoryData.GetValue(10).ToString()),
-                                MOQ = Common.GetString(categoryData.GetValue(11).ToString()),
-                                ImagesUrl = Common.GetString(categoryData.GetValue(12).ToString())
-                            };
-
-                            dbAccess.UpsertProduct(Obj.ProductId, Obj.Model, Obj.EAN, Obj.Name, Obj.Description, Obj.Dimension, Obj.Price, Obj.DeliveryCode, Obj.Quantity, Obj.Categories, Obj.Options, Obj.MOQ, Obj.ImagesUrl);
-                        }
-
-                        rowSkip++;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-        private static void LoadCategoryData()
-        {
-            try
-            {
-                string requestUrl = $"{categoryUrl}?email={UserName}&passwd={password}&action=full";
-                var data = feedService.DownLoadStringData(requestUrl);
-                if (data.Length > 0)
-                {
-                    var raw = data.Split('\n');
-                    int rowSkip = 1;
-                    foreach (var item in raw)
-                    {
-                        if (rowSkip > 2)
-                        {
-                            var categoryData = item.Split(',');
-
-                            if (categoryData.Length != 3)
-                            {
-                                return;
-                            }
-
-                            Category catObj = new Category()
-                            {
-                                CategoryId = Common.GetInt(categoryData.GetValue(0).ToString()),
-                                ParentCategoryId = Common.GetInt(categoryData.GetValue(1).ToString()),
-                                Description = Common.GetString(categoryData.GetValue(2).ToString()),
-                                Active = true
-                            };
-
-                            dbAccess.UpsertCategory(catObj.CategoryId, catObj.ParentCategoryId, catObj.Description, catObj.Active);
-                        }
-
-                        rowSkip++;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                Console.ReadLine();
-            }
-        }
-
-        private static void LoadProductImagesData(bool loadFromUrl)
+        private static void CreateProductImageFile()
         {
             try
             {
                 var data = string.Empty;
-                var filepath = Path.Combine(productImagePath, $"Image_paths.csv");
-
-                if (loadFromUrl)
-                {
-                    filepath = Path.Combine(productImagePath, $"Images_{Common.GetFileNameWithTimestamp("csv")}");
-                    feedService.DownLoadFile(productImageUrl, filepath);
-                }
-
+                var filepath = Path.Combine(ProductImage_SourceFolder, $"Image_paths.csv");
                 using (var reader = new StreamReader(filepath))
                 {
                     StringBuilder sb = new StringBuilder();
@@ -361,7 +258,7 @@ namespace puckatorFeedLoader
                     {
                         var messageList = new List<string>();
                         messageList.Add(data);
-                        emailService.NotifyProductFileCreation(messageList);
+                        emailService.NotifyFileCreation(messageList, "ERROR: Puck Product File Creation");
                         return;
 
                         //using (var reader = new StreamReader(@"D:\GIT\puckatorFeedLoader\File\Product\Product-202003281601363691.csv"))
@@ -437,9 +334,9 @@ namespace puckatorFeedLoader
                     try
                     {
                         var fileName = $"Product-{Common.GetCurrentTimestamp()}.csv";
-                        var filePath = Path.Combine(sourceFolder, fileName);
+                        var filePath = Path.Combine(Product_SourceFolder, fileName);
 
-                        feedService.CreateCSV(dt, sourceFolder, fileName);
+                        feedService.CreateCSV(dt, Product_SourceFolder, fileName);
                         using (var az = new AzureService())
                         {
                             az.AddBlob(filePath, ProductDestinationContainer, fileName);
@@ -450,11 +347,11 @@ namespace puckatorFeedLoader
                         messageList.Add(Environment.NewLine);
                         messageList.Add($"New Product Blob With Name: {fileName} Has Been Uploaded To Container: {ProductDestinationContainer}");
 
-                        emailService.NotifyProductFileCreation(messageList);
+                        emailService.NotifyFileCreation(messageList, "Puck Product File Creation");
                     }
                     catch (Exception ex)
                     {
-                        emailService.NotifyException(ex.Message);
+                        emailService.NotifyException(ex.Message, "EXCEPTION: Puck Product File Creation");
                     }
 
 
@@ -462,10 +359,87 @@ namespace puckatorFeedLoader
             }
             catch (Exception ex)
             {
-                emailService.NotifyException(ex.Message);
+                emailService.NotifyException(ex.Message, "EXCEPTION: Puck Product File Creation");
             }
         }
 
+        private static void CreateCategoryFileFile()
+        {
+
+            try
+            {
+                string requestUrl = $"{categoryUrl}?email={UserName}&passwd={password}&action=full";
+                var data = feedService.DownLoadStringData(requestUrl);
+                if (data.Length > 0)
+                {
+                    DataTable dt = new DataTable();
+                    var raw = data.Split('\n');
+                    int rowSkip = 1;
+                    dt.Columns.Add("CategoryId");
+                    dt.Columns.Add("ParentCategoryId");
+                    dt.Columns.Add("Description");
+                    dt.Columns.Add("Active");
+                    DataRow dr;
+
+                    foreach (var item in raw)
+                    {
+                        if (rowSkip > 2)
+                        {
+                            var categoryData = item.Split(',');
+
+                            if (categoryData.Length != 3)
+                            {
+                                continue;
+                            }
+
+                            dr = dt.NewRow();
+                            try
+                            {
+                                dr[0] = Common.GetInt(categoryData.GetValue(0).ToString());
+                                dr[1] = Common.GetInt(categoryData.GetValue(1).ToString());
+                                dr[2] = Common.GetString(categoryData.GetValue(2).ToString());
+                                dr[3] = true;
+                                dt.Rows.Add(dr);
+                            }
+                            catch (Exception ex)
+                            {
+                                emailService.NotifyException(ex.Message, "EXCEPTION: Puck Product Category File Creation");
+                            }
+                        }
+                        rowSkip++;
+                    }
+
+                    try
+                    {
+                        var fileName = $"Category-{Common.GetCurrentTimestamp()}.csv";
+                        var filePath = Path.Combine(ProductCategory_SourceFolder, fileName);
+
+                        feedService.CreateCSV(dt, ProductCategory_SourceFolder, fileName);
+                        using (var az = new AzureService())
+                        {
+                            az.AddBlob(filePath, CategoryDestinationContainer, fileName);
+                        }
+
+                        var messageList = new List<string>
+                        {
+                            $"New Product Category File Created @ { filePath} With Category Count: { dt.Rows.Count}",
+                            Environment.NewLine,
+                            $"New Product Category Blob With Name: {fileName} Has Been Uploaded To Container: {CategoryDestinationContainer}"
+                        };
+
+                        emailService.NotifyFileCreation(messageList, "Puck Product Category File Creation");
+                    }
+                    catch (Exception ex)
+                    {
+                        emailService.NotifyException(ex.Message, "EXCEPTION: Puck Product Category File Creation");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                emailService.NotifyException(ex.Message, "EXCEPTION: Puck Product Category File Creation");
+            }
+        }
 
     }
 }

@@ -83,6 +83,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="File\Category\" />
     <Folder Include="File\Stock\" />
   </ItemGroup>
   <ItemGroup>
