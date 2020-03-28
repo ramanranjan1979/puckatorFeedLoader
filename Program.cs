@@ -1,6 +1,7 @@
 ﻿using puckatorFeedLoader.BO;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -22,7 +23,8 @@ namespace puckatorFeedLoader
 
         private static List<Catalogue> myCatalogue = null;
 
-        private static Service myservice = null;
+        private static FeedService feedService = null;
+        private static EmailFeedService emailService = null;
         private static int catalogueLevel = 0;
 
         private static DataAccess dbAccess = null;
@@ -31,21 +33,26 @@ namespace puckatorFeedLoader
         private static string productImagePath = string.Empty;
         private static string productBarcodeFilePath = string.Empty;
 
+        private static string sourceFolder = string.Empty;
+        private static string ProductDestinationContainer = string.Empty;
+
         static void Main(string[] args)
         {
 
 
             LoadMetaData();
 
-            LoadCategoryData();
+            //LoadCategoryData();
 
-            LoadProductData();
+            //LoadProductData();
 
-            LoadProductImagesData(false);
+            //LoadProductImagesData(false);
 
-            LoadProductBarCodeData(false);
+            //LoadProductBarCodeData(false);
 
             //RefreshCatalogue();
+
+            CreateProductFile();
 
 
         }
@@ -61,7 +68,7 @@ namespace puckatorFeedLoader
                     ID = int.Parse(d.ItemArray[0].ToString()),
                     CategoryId = int.Parse(d.ItemArray[1].ToString()),
                     ParentCategoryId = int.Parse(d.ItemArray[2].ToString()),
-                    Description = d.ItemArray[3].ToString()                    
+                    Description = d.ItemArray[3].ToString()
                 };
 
                 myCatalogue.Add(cat);
@@ -86,7 +93,8 @@ namespace puckatorFeedLoader
 
         private static void LoadMetaData()
         {
-            myservice = new Service();
+            feedService = new FeedService();
+            emailService = new EmailFeedService(bool.Parse(System.Configuration.ConfigurationManager.AppSettings["TESTMODE"]));
             dbAccess = new DataAccess(System.Configuration.ConfigurationManager.AppSettings["DbConnection"]);
 
             UserName = System.Configuration.ConfigurationManager.AppSettings["FeedLoadUserName"];
@@ -95,9 +103,13 @@ namespace puckatorFeedLoader
             productUrl = System.Configuration.ConfigurationManager.AppSettings["ProductDataUrl"];
             productBarcodeUrl = System.Configuration.ConfigurationManager.AppSettings["EANDataUrl"];
             productImageUrl = System.Configuration.ConfigurationManager.AppSettings["ImageDataUrl"];
-            productFilePath = System.Configuration.ConfigurationManager.AppSettings["ProductFilePath"];
+
+            productFilePath = Path.Combine(Common.GetBaseDirectory(), System.Configuration.ConfigurationManager.AppSettings["ProductFilePath"]);
             productImagePath = System.Configuration.ConfigurationManager.AppSettings["ProductImagesFilePath"];
             productBarcodeFilePath = System.Configuration.ConfigurationManager.AppSettings["ProductBarcodeFilePath"];
+
+            sourceFolder = System.Configuration.ConfigurationManager.AppSettings["SourceFolder"];
+            ProductDestinationContainer = System.Configuration.ConfigurationManager.AppSettings["ProductDestinationContainer"];
 
             myCatalogue = new List<Catalogue>();
 
@@ -108,7 +120,7 @@ namespace puckatorFeedLoader
             try
             {
                 string requestUrl = $"{productUrl}?email={UserName}&passwd={password}&action=full";
-                var data = myservice.DownLoadStringData(requestUrl);
+                var data = feedService.DownLoadStringData(requestUrl);
                 if (data.Length > 0)
                 {
                     if (data.ToUpper() == "<br>Dropship Feed Error: You must wait 2 hours between product feed requests.".ToUpper())
@@ -177,7 +189,7 @@ namespace puckatorFeedLoader
             try
             {
                 string requestUrl = $"{categoryUrl}?email={UserName}&passwd={password}&action=full";
-                var data = myservice.DownLoadStringData(requestUrl);
+                var data = feedService.DownLoadStringData(requestUrl);
                 if (data.Length > 0)
                 {
                     var raw = data.Split('\n');
@@ -225,7 +237,7 @@ namespace puckatorFeedLoader
                 if (loadFromUrl)
                 {
                     filepath = Path.Combine(productImagePath, $"Images_{Common.GetFileNameWithTimestamp("csv")}");
-                    myservice.DownLoadFile(productImageUrl, filepath);
+                    feedService.DownLoadFile(productImageUrl, filepath);
                 }
 
                 using (var reader = new StreamReader(filepath))
@@ -293,7 +305,7 @@ namespace puckatorFeedLoader
                 if (loadFromUrl)
                 {
                     filepath = Path.Combine(productBarcodeFilePath, $"Barcode_{Common.GetFileNameWithTimestamp("csv")}");
-                    myservice.DownLoadFile(productBarcodeUrl, filepath);
+                    feedService.DownLoadFile(productBarcodeUrl, filepath);
                 }
 
                 var data = string.Empty;
@@ -335,5 +347,125 @@ namespace puckatorFeedLoader
                 Console.WriteLine(ex.Message);
             }
         }
+
+        private static void CreateProductFile()
+        {
+            try
+            {
+                string requestUrl = $"{productUrl}?email={UserName}&passwd={password}&action=full";
+                //var data = "<br>Dropship Feed Error: You must wait 2 hours between product feed requests.";
+                var data = feedService.DownLoadStringData(requestUrl);
+                if (data.Length > 0)
+                {
+                    if (data.ToUpper() == "<br>Dropship Feed Error: You must wait 2 hours between product feed requests.".ToUpper())
+                    {
+                        var messageList = new List<string>();
+                        messageList.Add(data);
+                        emailService.NotifyProductFileCreation(messageList);
+                        return;
+
+                        //using (var reader = new StreamReader(@"D:\GIT\puckatorFeedLoader\File\Product\Product-202003281601363691.csv"))
+                        //{
+                        //    StringBuilder sb = new StringBuilder();
+                        //    while (!reader.EndOfStream)
+                        //    {
+                        //        var line = reader.ReadLine();
+                        //        sb.AppendLine(line);
+                        //    }
+
+                        //    data = sb.ToString();
+                        //}
+                    }
+
+                    DataTable dt = new DataTable();
+
+                    dt.Columns.Add("products_id");
+                    dt.Columns.Add("model");
+                    dt.Columns.Add("ean");
+                    dt.Columns.Add("name");
+                    dt.Columns.Add("description");
+                    dt.Columns.Add("dimension");
+                    dt.Columns.Add("price");
+                    dt.Columns.Add("delivery_code");
+                    dt.Columns.Add("quantity");
+                    dt.Columns.Add("categories");
+                    dt.Columns.Add("options");
+                    dt.Columns.Add("minimum_order_quantity");
+                    dt.Columns.Add("image_url");
+
+                    DataRow dr;
+
+
+                    var raw = data.Split('\n');
+                    int rowSkip = 1;
+                    foreach (var item in raw)
+                    {
+                        dr = dt.NewRow();
+
+                        if (rowSkip > 2)
+                        {
+                            Regex CSVParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
+                            String[] productData = CSVParser.Split(item);
+
+
+                            if (productData.Length != 13)
+                            {
+                                continue;
+                            }
+
+                            dr[0] = Common.GetInt(productData.GetValue(0).ToString());
+                            dr[1] = Common.GetString(productData.GetValue(1).ToString());
+                            dr[2] = Common.GetString(productData.GetValue(2).ToString());
+                            dr[3] = Common.GetString(productData.GetValue(3).ToString());
+                            dr[4] = Common.GetString(productData.GetValue(4).ToString());
+                            dr[5] = Common.GetString(productData.GetValue(5).ToString());
+                            dr[6] = Common.GetString(productData.GetValue(6).ToString());
+                            dr[7] = Common.GetString(productData.GetValue(7).ToString());
+                            dr[8] = Common.GetString(productData.GetValue(8).ToString());
+                            dr[9] = Common.GetString(productData.GetValue(9).ToString());
+                            dr[10] = Common.GetString(productData.GetValue(10).ToString());
+                            dr[11] = Common.GetString(productData.GetValue(11).ToString());
+                            dr[12] = Common.GetString(productData.GetValue(12).ToString());
+
+
+                            dt.Rows.Add(dr);
+                        }
+
+                        rowSkip++;
+                    }
+
+                    try
+                    {
+                        var fileName = $"Product-{Common.GetCurrentTimestamp()}.csv";
+                        var filePath = Path.Combine(sourceFolder, fileName);
+
+                        feedService.CreateCSV(dt, sourceFolder, fileName);
+                        using (var az = new AzureService())
+                        {
+                            az.AddBlob(filePath, ProductDestinationContainer, fileName);
+                        }
+
+                        var messageList = new List<string>();
+                        messageList.Add($"New Product File Created @ { filePath} With Product Count: { dt.Rows.Count}");
+                        messageList.Add(Environment.NewLine);
+                        messageList.Add($"New Product Blob With Name: {fileName} Has Been Uploaded To Container: {ProductDestinationContainer}");
+
+                        emailService.NotifyProductFileCreation(messageList);
+                    }
+                    catch (Exception ex)
+                    {
+                        emailService.NotifyException(ex.Message);
+                    }
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                emailService.NotifyException(ex.Message);
+            }
+        }
+
+
     }
 }
