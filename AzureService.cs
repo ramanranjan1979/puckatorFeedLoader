@@ -37,6 +37,15 @@ namespace puckatorFeedLoader
             }
         }
 
+        public void DeleteBlob(string destinationContainer, string fileKeyName)
+        {
+            CloudStorageAccount sa = CloudStorageAccount.Parse(_storageAccount);
+            CloudBlobClient bc = sa.CreateCloudBlobClient();
+            CloudBlobContainer conainer = bc.GetContainerReference(destinationContainer);
+            CloudBlockBlob blob = conainer.GetBlockBlobReference(fileKeyName);
+            blob.Delete();            
+        }
+
         public void Dispose()
         {
             GC.SuppressFinalize(this);
