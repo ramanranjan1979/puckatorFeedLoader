@@ -6,10 +6,11 @@ using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Text;
 using System.Text.RegularExpressions;
-using PuckFeedFunctionApp.BO;
+using FeedFunctionApp.BO;
 using System.Threading.Tasks;
+using FeedCreator;
 
-namespace PuckFeedFunctionApp
+namespace FeedFunctionApp
 {
     public static class ProductBlogTriggerFunction
     {
@@ -21,6 +22,8 @@ namespace PuckFeedFunctionApp
 
             if (myBlob.Length > 0)
             {
+                log.Info($"OnProductFileUploaded has been trigger with blob Name:{name} \n Size: {myBlob.Length} Bytes");
+
                 using var reader = new StreamReader(myBlob);
                 var lineNumber = 1;
                 var line = await reader.ReadLineAsync();
@@ -80,7 +83,12 @@ namespace PuckFeedFunctionApp
                 }
             }
 
-            log.Info($"OnProductFileUploaded has been trigger with blob Name:{name} \n Size: {myBlob.Length} Bytes");
+            if(myBlob.Length > 0)
+            {
+                new AzureService(Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process)).DeleteBlob("product-container", name);
+                log.Info($"Blob Name:{name} \n Size: {myBlob.Length} Bytes has been delete from product-container ");
+            }
+            
 
         }
 
@@ -92,11 +100,12 @@ namespace PuckFeedFunctionApp
         public static async Task Run([BlobTrigger("category-container/{name}", Connection = "AzureWebJobsStorage")]Stream myBlob, string name, TraceWriter log)
         {
             string cs = Environment.GetEnvironmentVariable("MyConnectionString", EnvironmentVariableTarget.Process);
-            var data = String.Empty;
             var dbAccess = new DataAccess(cs);
 
             if (myBlob.Length > 0)
             {
+                log.Info($"OnProductCategoryFileUploaded has been trigger with blob Name:{name} \n Size: {myBlob.Length} Bytes");
+
                 using var reader = new StreamReader(myBlob);
                 var lineNumber = 1;
                 var line = await reader.ReadLineAsync();
@@ -107,8 +116,8 @@ namespace PuckFeedFunctionApp
                     sb.AppendLine(line);
                     lineNumber++;
                 }
-                data = sb.ToString();
-                var raw = data.Split('\n');              
+                string data = sb.ToString();
+                var raw = data.Split('\n');
                 foreach (var item in raw)
                 {
 
@@ -137,8 +146,14 @@ namespace PuckFeedFunctionApp
 
                 }
             }
-            log.Info($"OnProductCategoryFileUploaded has been trigger with blob Name:{name} \n Size: {myBlob.Length} Bytes");
 
+
+
+            if (myBlob.Length > 0)
+            {
+                new AzureService(Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process)).DeleteBlob("category-container", name);
+                log.Info($"Blob Name:{name} \n Size: {myBlob.Length} Bytes has been delete from category-container ");
+            }
         }
 
     }

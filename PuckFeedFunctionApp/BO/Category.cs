@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PuckFeedFunctionApp.BO
+namespace FeedFunctionApp.BO
 {
     public class Category
     {

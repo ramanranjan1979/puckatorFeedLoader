@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "puckatorFeedLoader", "puckatorFeedLoader.csproj", "{FCDDE004-40D7-4AAB-82DB-4746F7EF9E4E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PuckatorFeedCreator", "PuckatorFeedCreator.csproj", "{FCDDE004-40D7-4AAB-82DB-4746F7EF9E4E}"
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Database", "Database\Database.sqlproj", "{41C68798-4BBE-46CA-B5CF-EBED630C982B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GiftHub", "GiftHub\GiftHub.csproj", "{F85C13CA-B5E1-4591-B4E8-3ACDF4CEA367}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PuckFeedFunctionApp", "PuckFeedFunctionApp\PuckFeedFunctionApp.csproj", "{A1F39527-1AE0-4107-B066-4E25A4E8CB08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PuckatorService", "PuckatorService\PuckatorService.csproj", "{90697244-4935-4586-A00A-52148B7FAFCD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,10 @@ Global
 		{A1F39527-1AE0-4107-B066-4E25A4E8CB08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1F39527-1AE0-4107-B066-4E25A4E8CB08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1F39527-1AE0-4107-B066-4E25A4E8CB08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90697244-4935-4586-A00A-52148B7FAFCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90697244-4935-4586-A00A-52148B7FAFCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90697244-4935-4586-A00A-52148B7FAFCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90697244-4935-4586-A00A-52148B7FAFCD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -10,7 +10,7 @@ using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace puckatorFeedLoader
+namespace FeedCreator
 {
     public class AzureService : IDisposable
     {
@@ -19,6 +19,12 @@ namespace puckatorFeedLoader
         public AzureService()
         {
             _storageAccount = System.Configuration.ConfigurationManager.AppSettings["AzureStorageAccount"];
+        }
+
+
+        public AzureService(string Connection)
+        {
+            _storageAccount = Connection;
         }
 
         public void AddBlob(string filePath, string destinationContainer, string fileKeyName)
@@ -37,13 +43,13 @@ namespace puckatorFeedLoader
             }
         }
 
-        public void DeleteBlob(string destinationContainer, string fileKeyName)
+        public async Task DeleteBlob(string destinationContainer, string fileKeyName)
         {
             CloudStorageAccount sa = CloudStorageAccount.Parse(_storageAccount);
             CloudBlobClient bc = sa.CreateCloudBlobClient();
             CloudBlobContainer conainer = bc.GetContainerReference(destinationContainer);
             CloudBlockBlob blob = conainer.GetBlockBlobReference(fileKeyName);
-            blob.Delete();            
+            blob.DeleteAsync();           
         }
 
         public void Dispose()

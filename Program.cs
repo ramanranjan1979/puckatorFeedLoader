@@ -1,4 +1,4 @@
-﻿using puckatorFeedLoader.BO;
+﻿using FeedCreator.BO;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace puckatorFeedLoader
+namespace FeedCreator
 {
     class Program
     {
@@ -53,7 +53,7 @@ namespace puckatorFeedLoader
 
             CreateCategoryFileFile();
 
-            CreateProductImageFile();
+            //CreateProductImageFile();
 
             //LoadProductBarCodeData(false);
 
