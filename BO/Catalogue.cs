@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FeedCreator.BO
+namespace PuckatorService.BO
 {
     public class Catalogue : Category
     {

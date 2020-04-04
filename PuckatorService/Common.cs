@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FeedCreator
+namespace PuckatorService
 {
     public static class Common
     {
@@ -23,6 +23,11 @@ namespace FeedCreator
             return $"{DateTime.Now.Day}-{DateTime.Now.Month}-{DateTime.Now.Year}-{DateTime.Now.Hour}-{DateTime.Now.Minute}-{DateTime.Now.Second}.{extension}";
         }
 
+        public static string GetFileNameWithTimestamp(string fileName, string extension)
+        {
+            return $"{fileName}-{GetCurrentTimestamp()}.{extension}";
+        }
+
         public static string GetBaseDirectory()
         {
             return AppContext.BaseDirectory.Replace(@"\bin\Debug\", String.Empty);
@@ -37,6 +42,14 @@ namespace FeedCreator
         {
             return value.ToString("yyyyMMddHHmmssffff");
         }
-        
+
+    }
+
+    public enum LogType
+    {
+        PRODUCT_CODE_FILE_PULL_FROM_SOURCE = 1,
+        PRODUCT_IMAGE_FILE_PULL_FROM_SOURCE = 2,
+        PRODUCT_CATEGORY_FILE_PULL_FROM_SOURCE = 3,
+        PRODUCT_FILE_PULL_FROM_SOURCE = 4,
     }
 }

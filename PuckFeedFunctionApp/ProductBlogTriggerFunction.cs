@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using FeedFunctionApp.BO;
 using System.Threading.Tasks;
-using FeedCreator;
+using PuckatorService;
 
 namespace FeedFunctionApp
 {
@@ -85,7 +85,7 @@ namespace FeedFunctionApp
 
             if(myBlob.Length > 0)
             {
-                new AzureService(Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process)).DeleteBlob("product-container", name);
+                await new AzureService(Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process)).DeleteBlob("product-container", name);
                 log.Info($"Blob Name:{name} \n Size: {myBlob.Length} Bytes has been delete from product-container ");
             }
             
@@ -151,11 +151,12 @@ namespace FeedFunctionApp
 
             if (myBlob.Length > 0)
             {
-                new AzureService(Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process)).DeleteBlob("category-container", name);
+                await new AzureService(Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process)).DeleteBlob("category-container", name);
                 log.Info($"Blob Name:{name} \n Size: {myBlob.Length} Bytes has been delete from category-container ");
             }
         }
 
     }
 
+    
 }

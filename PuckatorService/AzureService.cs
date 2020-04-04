@@ -10,7 +10,7 @@ using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FeedCreator
+namespace PuckatorService
 {
     public class AzureService : IDisposable
     {

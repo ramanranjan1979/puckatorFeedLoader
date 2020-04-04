@@ -2,7 +2,7 @@
 (
 	[Id] INT NOT NULL PRIMARY KEY Identity(1,1), 
     [KeyName] VARCHAR(50) NOT NULL, 
-    [KeyValue] VARBINARY(20) NOT NULL, 
+    [KeyValue] VARCHAR(50) NOT NULL, 
     [IsActive] BIT NOT NULL
 )
 

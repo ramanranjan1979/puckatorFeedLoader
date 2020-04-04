@@ -1,0 +1,56 @@
+﻿/*
+ Pre-Deployment Script Template							
+--------------------------------------------------------------------------------------
+ This file contains SQL statements that will be executed before the build script.	
+ Use SQLCMD syntax to include a file in the pre-deployment script.			
+ Example:      :r .\myfile.sql								
+ Use SQLCMD syntax to reference a variable in the pre-deployment script.		
+ Example:      :setvar TableName MyTable							
+               SELECT * FROM [$(TableName)]					
+--------------------------------------------------------------------------------------
+*/
+
+/*LOG*/
+
+IF NOT EXISTS (SELECT TOP 1 1 FROM dbo.LogType WITH (NOLOCK) WHERE NAME='PRODUCT_FILE_PULL_FROM_SOURCE')
+BEGIN
+    INSERT INTO DBO.LogType values ('PRODUCT_FILE_PULL_FROM_SOURCE')    
+END
+
+IF NOT EXISTS (SELECT TOP 1 1 FROM dbo.LogType WITH (NOLOCK) WHERE NAME='PRODUCT_CATEGORY_FILE_PULL_FROM_SOURCE')
+BEGIN
+    INSERT INTO DBO.LogType values ('PRODUCT_CATEGORY_FILE_PULL_FROM_SOURCE')    
+END
+
+IF NOT EXISTS (SELECT TOP 1 1 FROM dbo.LogType WITH (NOLOCK) WHERE NAME='PRODUCT_IMAGE_FILE_PULL_FROM_SOURCE')
+BEGIN
+    INSERT INTO DBO.LogType values ('PRODUCT_IMAGE_FILE_PULL_FROM_SOURCE')    
+END
+
+IF NOT EXISTS (SELECT TOP 1 1 FROM dbo.LogType WITH (NOLOCK) WHERE NAME='PRODUCT_CODE_FILE_PULL_FROM_SOURCE')
+BEGIN
+    INSERT INTO DBO.LogType values ('PRODUCT_CODE_FILE_PULL_FROM_SOURCE')    
+END
+
+/*SETTING*/
+
+
+IF NOT EXISTS(SELECT TOP 1 1 FROM DBO.Setting WITH (NOLOCK) WHERE KeyName='PRODUCT_FILE_PULL_FROM_SOURCE_FREQ')
+BEGIN
+	INSERT INTO DBO.Setting VALUES('PRODUCT_FILE_PULL_FROM_SOURCE_FREQ','10000',1)
+END
+
+IF NOT EXISTS(SELECT TOP 1 1 FROM DBO.Setting WITH (NOLOCK) WHERE KeyName='PRODUCT_CATEGORY_FILE_PULL_FROM_SOURCE_FREQ')
+BEGIN
+	INSERT INTO DBO.Setting VALUES('PRODUCT_CATEGORY_FILE_PULL_FROM_SOURCE_FREQ','10000',1)
+END
+
+IF NOT EXISTS(SELECT TOP 1 1 FROM DBO.Setting WITH (NOLOCK) WHERE KeyName='PRODUCT_IMAGE_FILE_PULL_FROM_SOURCE_FREQ')
+BEGIN
+	INSERT INTO DBO.Setting VALUES('PRODUCT_IMAGE_FILE_PULL_FROM_SOURCE_FREQ','10000',1)
+END
+
+IF NOT EXISTS(SELECT TOP 1 1 FROM DBO.Setting WITH (NOLOCK) WHERE KeyName='c')
+BEGIN
+	INSERT INTO DBO.Setting VALUES('PRODUCT_CODE_FILE_PULL_FROM_SOURCE_FREQ','10000',1)
+END

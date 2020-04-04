@@ -121,6 +121,7 @@
     <Folder Include="dbo\Tables\" />
     <Folder Include="dbo\Stored Procedures\" />
     <Folder Include="Security\" />
+    <Folder Include="SQL" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\CategoryMaster.sql">
@@ -167,5 +168,10 @@
     <Build Include="dbo\Tables\Setting.sql" />
     <Build Include="dbo\Tables\LogType.sql" />
     <Build Include="dbo\Tables\Log.sql" />
+    <Build Include="dbo\Stored Procedures\GetLogType.sql" />
+    <Build Include="dbo\Stored Procedures\GetSetting.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PreDeploy Include="SQL\Lookup.sql" />
   </ItemGroup>
 </Project>
