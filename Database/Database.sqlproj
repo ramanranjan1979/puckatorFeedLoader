@@ -170,6 +170,10 @@
     <Build Include="dbo\Tables\Log.sql" />
     <Build Include="dbo\Stored Procedures\GetLogType.sql" />
     <Build Include="dbo\Stored Procedures\GetSetting.sql" />
+    <Build Include="dbo\Stored Procedures\UpsertLog.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="SQL\Lookup.sql" />

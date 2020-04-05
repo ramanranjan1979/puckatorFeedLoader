@@ -6,7 +6,8 @@
     [ResponseData] VARCHAR(MAX) NULL, 
     [ErrorCode] VARCHAR(50) NULL, 
     [CreatedDate] DATETIME NOT NULL DEFAULT getdate(), 
-    [CreatedBy] VARCHAR(50) NULL
+    [CreatedBy] VARCHAR(50) NULL, 
+    [UpdatedDate] DATETIME NULL DEFAULT Getdate()
 )
 
 GO

@@ -92,6 +92,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BO\Catalogue.cs" />
+    <Compile Include="BO\Setting.cs" />
+    <Compile Include="BO\Log.cs" />
     <Compile Include="BO\Product.cs" />
     <Compile Include="BO\Category.cs" />
     <Compile Include="ConfigureService.cs" />

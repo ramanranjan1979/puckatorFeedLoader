@@ -54,6 +54,8 @@ namespace PuckatorFeedCreator
         private static Timer productImageFileCreationTimer;
         private static Timer productBarcodeFileCreationTimer;
 
+        private static SettingList _settingList = null;
+
         private const int pollInterval = 10000; //600000= 10 minutes 100000 = 10 seconds
 
 
@@ -64,7 +66,14 @@ namespace PuckatorFeedCreator
 
             Setup();
 
+            LoadSetting();
+
             LoadTimer();
+        }
+
+        private void LoadSetting()
+        {
+            var data = dbAccess.GetSetting(); 
         }
 
         private static void Setup()
