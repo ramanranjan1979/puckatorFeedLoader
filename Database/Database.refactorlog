@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="69c82376-1d54-4e25-ac28-5ebda908a099" ChangeDateTime="04/10/2020 19:38:01">
+    <Property Name="ElementName" Value="[dbo].[ImageMaster].[IX_ImageMaster_Column]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[ImageMaster]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_ImageMaster_Processed]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="4902e0d1-b847-420b-bddb-d0e4e6fc7c15" ChangeDateTime="04/10/2020 19:39:05">
+    <Property Name="ElementName" Value="[dbo].[ImageMaster].[IX_ImageMaster_Processed]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[ImageMaster]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_ImageMaster_ProcessedDateTime]" />
+  </Operation>
+</Operations>

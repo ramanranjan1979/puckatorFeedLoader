@@ -5,7 +5,9 @@ CREATE PROCEDURE [dbo].[UpsertProductImage]
 	@FileName varchar(200),
 	@Number int,
 	@IsMain bit,
-	@Active bit
+	@Active bit,
+	@ProcessedDateTime Datetime = null,
+	@ProcessedReferenceData varchar(200) = null
 	
 )
 
@@ -23,7 +25,9 @@ SET NOCOUNT ON;
 		Number=@Number,
 		IsMain=@IsMain,
 		Active=@Active,
-		UpdatedDate=GETDATE()
+		UpdatedDate=GETDATE(),
+		ProcessedDateTime=@ProcessedDateTime,
+		ProcessedReferenceData=@ProcessedReferenceData
 		WHERE model=@Model AND [FileName]=@fileName
  END
  ELSE

@@ -222,7 +222,7 @@ namespace FeedFunctionApp
                         }
 
 
-                        
+
 
                     }
 
@@ -302,6 +302,45 @@ namespace FeedFunctionApp
             }
         }
 
+    }
+
+    public static class ImageQueueMessageTriggerFunction
+    {
+        [FunctionName("OnProductCodeInMessageQueue")]
+        public static async Task Run([QueueTrigger("imagedownloadqueue", Connection = "AzureWebJobsStorage")]string queueItem, TraceWriter log)
+        {
+            string cs = Environment.GetEnvironmentVariable("MyConnectionString", EnvironmentVariableTarget.Process);
+            var dbAccess = new DataAccess(cs);
+
+            if (queueItem.Length > 0)
+            {
+                log.Info($"OnProductCodeInMessageQueue has been trigger with queue name imagedownloadqueue and message id:{queueItem}");
+
+                var dataSet = dbAccess.GetProductImageFileNames(queueItem);
+
+                if (dataSet.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow row in dataSet.Tables[0].Rows)
+                    {
+                        var blobName = dbAccess.GetRowValue(row, "FileName");
+                        Stream fs = await Common.GetImageAsStream(blobName, @"http://www.puckator-dropship.co.uk/gifts/images/");
+                        using (var az = new AzureService())
+                        {
+                            //az.AddBlob(
+                        }
+                    }
+                }
+            }
+
+            if (queueItem.Length > 0)
+            {
+                //await new AzureService(Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process)).DeleteBlob("barcode-container", name);
+                //log.Info($"Blob Name:{name} \n Size: {queueItem.Length} Bytes has been delete from barcode-container ");
+            }
+        }
+
+
+       
     }
 
 

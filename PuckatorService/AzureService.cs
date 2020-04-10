@@ -44,13 +44,23 @@ namespace PuckatorService
             }
         }
 
+        public void AddBlob(FileStream fs, string destinationContainer, string fileKeyName)
+        {
+            CloudStorageAccount sa = CloudStorageAccount.Parse(_storageAccount);
+            CloudBlobClient bc = sa.CreateCloudBlobClient();
+            CloudBlobContainer conainer = bc.GetContainerReference(destinationContainer);
+            conainer.CreateIfNotExists();
+            CloudBlockBlob blob = conainer.GetBlockBlobReference(fileKeyName);
+            blob.UploadFromStream(fs);
+        }
+
         public async Task DeleteBlob(string destinationContainer, string fileKeyName)
         {
             CloudStorageAccount sa = CloudStorageAccount.Parse(_storageAccount);
             CloudBlobClient bc = sa.CreateCloudBlobClient();
             CloudBlobContainer conainer = bc.GetContainerReference(destinationContainer);
             CloudBlockBlob blob = conainer.GetBlockBlobReference(fileKeyName);
-            blob.DeleteAsync();           
+            blob.DeleteAsync();
         }
 
         public async Task AddMessageInQueue(string destinationQueueName, string messageId)
@@ -60,7 +70,7 @@ namespace PuckatorService
             CloudQueue myqueue = client.GetQueueReference(destinationQueueName);
             //myqueue.CreateIfNotExists();
             myqueue.AddMessageAsync(new CloudQueueMessage(messageId));
-            
+
         }
 
 

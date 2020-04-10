@@ -142,5 +142,35 @@ namespace FeedFunctionApp
             return ds;
 
         }
+
+        public DataSet GetProductImageFileNames(string productCode)
+        {
+            SqlConnection con = new SqlConnection(_con);
+            con.Open();
+
+            SqlCommand cmd = new SqlCommand("GetProductImageFileNames", con)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.AddWithValue("ProductCode", productCode);
+            cmd.ExecuteNonQuery();
+
+            SqlDataAdapter sda = new SqlDataAdapter(cmd);
+            DataSet ds = new DataSet();
+            sda.Fill(ds);
+            con.Close();           
+
+            return ds;
+        }
+
+        public string GetRowValue(DataRow row, string name)
+        {
+            if (!Convert.IsDBNull(row[name]))
+            {
+                return row[name].ToString();
+            }
+
+            return string.Empty;
+        }
     }
 }

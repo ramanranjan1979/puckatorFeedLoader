@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -43,6 +45,13 @@ namespace PuckatorService
             return value.ToString("yyyyMMddHHmmssffff");
         }
 
+        public static  async Task<Stream> GetImageAsStream(string urlImage, string urlBase)
+        {
+            var client = new HttpClient();
+            client.BaseAddress = new Uri(urlBase);
+            var response = await client.GetAsync(urlImage);
+            return await response.Content.ReadAsStreamAsync();
+        }
     }
 
     public enum LogType
