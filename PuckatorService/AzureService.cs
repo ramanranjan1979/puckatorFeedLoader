@@ -1,5 +1,6 @@
 ﻿using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.Queue;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -51,6 +52,17 @@ namespace PuckatorService
             CloudBlockBlob blob = conainer.GetBlockBlobReference(fileKeyName);
             blob.DeleteAsync();           
         }
+
+        public async Task AddMessageInQueue(string destinationQueueName, string messageId)
+        {
+            CloudStorageAccount sa = CloudStorageAccount.Parse(_storageAccount);
+            CloudQueueClient client = sa.CreateCloudQueueClient();
+            CloudQueue myqueue = client.GetQueueReference(destinationQueueName);
+            //myqueue.CreateIfNotExists();
+            myqueue.AddMessageAsync(new CloudQueueMessage(messageId));
+            
+        }
+
 
         public void Dispose()
         {
