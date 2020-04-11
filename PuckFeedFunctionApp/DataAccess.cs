@@ -152,7 +152,7 @@ namespace FeedFunctionApp
             {
                 CommandType = CommandType.StoredProcedure
             };
-            cmd.Parameters.AddWithValue("ProductCode", productCode);
+            cmd.Parameters.AddWithValue("ProductModel", productCode);
             cmd.ExecuteNonQuery();
 
             SqlDataAdapter sda = new SqlDataAdapter(cmd);

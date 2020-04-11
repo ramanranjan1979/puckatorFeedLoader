@@ -22,6 +22,7 @@ namespace PuckatorService
             _storageAccount = System.Configuration.ConfigurationManager.AppSettings["AzureStorageAccount"];
         }
 
+       
 
         public AzureService(string Connection)
         {
@@ -44,14 +45,15 @@ namespace PuckatorService
             }
         }
 
-        public void AddBlob(FileStream fs, string destinationContainer, string fileKeyName)
+        public async Task<string> AddBlob(Stream fs, string destinationContainer, string fileKeyName)
         {
             CloudStorageAccount sa = CloudStorageAccount.Parse(_storageAccount);
             CloudBlobClient bc = sa.CreateCloudBlobClient();
             CloudBlobContainer conainer = bc.GetContainerReference(destinationContainer);
-            conainer.CreateIfNotExists();
+            //conainer.CreateIfNotExists();
             CloudBlockBlob blob = conainer.GetBlockBlobReference(fileKeyName);
-            blob.UploadFromStream(fs);
+            await blob.UploadFromStreamAsync(fs); 
+            return blob.Uri.AbsoluteUri;
         }
 
         public async Task DeleteBlob(string destinationContainer, string fileKeyName)

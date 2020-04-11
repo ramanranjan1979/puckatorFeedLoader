@@ -42,7 +42,7 @@ namespace FeedFunctionApp
                 {
 
                     Regex CSVParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
-                    String[] rawData = CSVParser.Split(item);
+                    string[] rawData = CSVParser.Split(item);
 
 
                     if (rawData.Length != 13)
@@ -117,7 +117,7 @@ namespace FeedFunctionApp
                 {
 
                     Regex expression = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
-                    String[] rawData = expression.Split(item);
+                    string[] rawData = expression.Split(item);
 
                     Category Obj = new Category()
                     {
@@ -136,13 +136,8 @@ namespace FeedFunctionApp
                     {
                         log.Error($"EXCEPTION @ OnProductCategoryFileUploaded: {ex.Message}");
                     }
-
-
-
                 }
             }
-
-
 
             if (myBlob.Length > 0)
             {
@@ -220,10 +215,6 @@ namespace FeedFunctionApp
                         {
                             log.Error($"EXCEPTION @ OnProductImageFileUploaded: {ex.Message}");
                         }
-
-
-
-
                     }
 
                     rowSkip++;
@@ -316,17 +307,26 @@ namespace FeedFunctionApp
             {
                 log.Info($"OnProductCodeInMessageQueue has been trigger with queue name imagedownloadqueue and message id:{queueItem}");
 
+                var containerName = $"images/{queueItem}";
+
                 var dataSet = dbAccess.GetProductImageFileNames(queueItem);
 
                 if (dataSet.Tables[0].Rows.Count > 0)
                 {
                     foreach (DataRow row in dataSet.Tables[0].Rows)
                     {
-                        var blobName = dbAccess.GetRowValue(row, "FileName");
-                        Stream fs = await Common.GetImageAsStream(blobName, @"http://www.puckator-dropship.co.uk/gifts/images/");
-                        using (var az = new AzureService())
+                        try
                         {
-                            //az.AddBlob(
+                            var blobName = dbAccess.GetRowValue(row, "FileName");
+                            Stream fs = await Common.GetImageAsStream(blobName, @"http://www.puckator-dropship.co.uk/gifts/images/");
+                            using var az = new AzureService(Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process));
+                            var url = await az.AddBlob(fs, containerName, blobName);
+                            //dbAccess.UpsertProductImage()
+                        }
+
+                        catch (Exception ex)
+                        {
+                            log.Error($"Exception occurred in OnProductCodeInMessageQueue :{ex.Message}");
                         }
                     }
                 }
@@ -340,7 +340,7 @@ namespace FeedFunctionApp
         }
 
 
-       
+
     }
 
 
