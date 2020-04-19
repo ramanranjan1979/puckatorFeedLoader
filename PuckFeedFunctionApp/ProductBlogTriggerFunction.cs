@@ -115,20 +115,22 @@ namespace FeedFunctionApp
                 var raw = data.Split('\n');
                 foreach (var item in raw)
                 {
-
-                    Regex expression = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
-                    string[] rawData = expression.Split(item);
-
-                    Category Obj = new Category()
-                    {
-                        CategoryId = Common.GetInt(rawData.GetValue(0).ToString()),
-                        ParentCategoryId = Common.GetInt(rawData.GetValue(1).ToString()),
-                        Description = Common.GetString(rawData.GetValue(2).ToString()),
-                        Active = true
-                    };
-
                     try
                     {
+
+                        Regex expression = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
+                        string[] rawData = expression.Split(item);
+
+                        if (rawData.Length != 4)
+                            continue;
+
+                        Category Obj = new Category()
+                        {
+                            CategoryId = Common.GetInt(rawData.GetValue(0).ToString()),
+                            ParentCategoryId = Common.GetInt(rawData.GetValue(1).ToString()),
+                            Description = Common.GetString(rawData.GetValue(2).ToString()),
+                            Active = true
+                        };
 
                         await dbAccess.UpsertCategory(Obj.CategoryId, Obj.ParentCategoryId, Obj.Description, Obj.Active);
                     }
@@ -318,10 +320,15 @@ namespace FeedFunctionApp
                         try
                         {
                             var blobName = dbAccess.GetRowValue(row, "FileName");
+                            var imageNumber = int.Parse(dbAccess.GetRowValue(row, "Number"));
+                            var isMain = bool.Parse(dbAccess.GetRowValue(row, "IsMain"));
+                            var isActive = bool.Parse(dbAccess.GetRowValue(row, "Active"));
+
                             Stream fs = await Common.GetImageAsStream(blobName, @"http://www.puckator-dropship.co.uk/gifts/images/");
                             using var az = new AzureService(Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process));
                             var url = await az.AddBlob(fs, containerName, blobName);
-                            //dbAccess.UpsertProductImage()
+
+                            await dbAccess.UpsertProductImage(queueItem, blobName, imageNumber, isMain, isActive, DateTime.Now, url);
                         }
 
                         catch (Exception ex)
@@ -332,11 +339,11 @@ namespace FeedFunctionApp
                 }
             }
 
-            if (queueItem.Length > 0)
-            {
-                //await new AzureService(Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process)).DeleteBlob("barcode-container", name);
-                //log.Info($"Blob Name:{name} \n Size: {queueItem.Length} Bytes has been delete from barcode-container ");
-            }
+            //if (queueItem.Length > 0)
+            //{
+            //    await new AzureService(Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process)).DeleteMessageFromQueue("imagedownloadqueue", queueItem);
+            //    log.Info($"A Message {queueItem} has been deleted from queue name: imagedownloadqueue");
+            //}
         }
 
 

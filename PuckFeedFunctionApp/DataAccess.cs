@@ -101,6 +101,28 @@ namespace FeedFunctionApp
 
         }
 
+        public async Task UpsertProductImage(string model, string filename, int number, bool ismain, bool active,DateTime processedDateTime, string processedReferenceData)
+        {
+            SqlConnection con = new SqlConnection(_con);
+            con.Open();
+
+            SqlCommand cmd = new SqlCommand("UpsertProductImage", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("model", model);
+            cmd.Parameters.AddWithValue("filename", filename);
+            cmd.Parameters.AddWithValue("number", number);
+            cmd.Parameters.AddWithValue("ismain", ismain);
+            cmd.Parameters.AddWithValue("active", active);
+            cmd.Parameters.AddWithValue("ProcessedDateTime", processedDateTime);
+            cmd.Parameters.AddWithValue("ProcessedReferenceData", processedReferenceData);
+
+            cmd.ExecuteNonQuery();
+
+            con.Close();
+
+        }
+
+
         public DataSet GetCategoryByParentCategoryId(int parentCategoryId)
         {
             SqlConnection con = new SqlConnection(_con);
@@ -143,7 +165,7 @@ namespace FeedFunctionApp
 
         }
 
-        public DataSet GetProductImageFileNames(string productCode)
+        public DataSet GetProductImageFileNames(string productModel)
         {
             SqlConnection con = new SqlConnection(_con);
             con.Open();
@@ -152,7 +174,7 @@ namespace FeedFunctionApp
             {
                 CommandType = CommandType.StoredProcedure
             };
-            cmd.Parameters.AddWithValue("ProductModel", productCode);
+            cmd.Parameters.AddWithValue("ProductModel", productModel);
             cmd.ExecuteNonQuery();
 
             SqlDataAdapter sda = new SqlDataAdapter(cmd);

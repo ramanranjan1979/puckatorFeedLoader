@@ -75,6 +75,16 @@ namespace PuckatorService
 
         }
 
+        public async Task DeleteMessageFromQueue(string destinationQueueName, string messageId)
+        {
+            CloudStorageAccount sa = CloudStorageAccount.Parse(_storageAccount);
+            CloudQueueClient client = sa.CreateCloudQueueClient();
+            CloudQueue myqueue = client.GetQueueReference(destinationQueueName);
+            //myqueue.CreateIfNotExists();
+            myqueue.DeleteMessageAsync(new CloudQueueMessage(messageId));
+
+        }
+
 
         public void Dispose()
         {

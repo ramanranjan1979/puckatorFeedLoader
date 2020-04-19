@@ -56,7 +56,8 @@ namespace PuckatorFeedCreator
 
         private static SettingList _settingList = null;
 
-        private const int pollInterval = 10000; //600000= 10 minutes 100000 = 10 seconds
+        //private const int pollInterval = 10000; //10 seconds
+        private const int pollInterval = 600000; // 10 minutes
 
 
 
