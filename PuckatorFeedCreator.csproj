@@ -108,7 +108,9 @@
     <None Include="File\Image\image_paths.csv" />
     <None Include="File\Product\Product-202003281601363691.csv" />
     <None Include="Images\FavIcon\manifest.json" />
-    <None Include="Log4net.config" />
+    <None Include="Log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

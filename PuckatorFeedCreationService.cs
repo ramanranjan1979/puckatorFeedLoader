@@ -19,6 +19,7 @@ namespace PuckatorFeedCreator
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+
         private static string UserName = string.Empty;
         private static string password = string.Empty;
 
@@ -53,11 +54,14 @@ namespace PuckatorFeedCreator
         private static Timer productCategoryFileCreationTimer;
         private static Timer productImageFileCreationTimer;
         private static Timer productBarcodeFileCreationTimer;
+        private static Timer notificationTimer;
 
         private static SettingList _settingList = null;
+        private static List<KeyValuePair<string, string>> messageList;
 
-        //private const int pollInterval = 10000; //10 seconds
-        private const int pollInterval = 600000; // 10 minutes
+        private const int pollInterval = 120000; //120 seconds
+        //private const int pollInterval = 600000; // 10 minutes
+        //private const int pollInterval = 10800000; // 3 HRS
 
 
 
@@ -74,7 +78,7 @@ namespace PuckatorFeedCreator
 
         private void LoadSetting()
         {
-            var data = dbAccess.GetSetting(); 
+            //var data = dbAccess.GetSetting(); 
         }
 
         private static void Setup()
@@ -107,6 +111,8 @@ namespace PuckatorFeedCreator
             BarcodeDestinationContainer = System.Configuration.ConfigurationManager.AppSettings["BarcodeDestinationContainer"];
 
             myCatalogue = new List<Catalogue>();
+            messageList = new List<KeyValuePair<string, string>>();
+
         }
 
         public void Stop()
@@ -120,6 +126,7 @@ namespace PuckatorFeedCreator
             productCategoryFileCreationTimer = new Timer(new TimerCallback(CreateCategoryFileFile), null, 0, pollInterval);
             productImageFileCreationTimer = new Timer(new TimerCallback(CreateImageFile), null, 0, pollInterval);
             productBarcodeFileCreationTimer = new Timer(new TimerCallback(CreateBarcodeFile), null, 0, pollInterval);
+            notificationTimer = new Timer(new TimerCallback(SendNotification), null, 0, pollInterval);
         }
 
         private static void CreateProductFile(object state)
@@ -130,18 +137,18 @@ namespace PuckatorFeedCreator
                 log.Info($"CreateProductFile load has been ticked @ {DateTime.Now.ToLongTimeString()}");
 
                 string requestUrl = $"{productUrl}?email={UserName}&passwd={password}&action=full";
-                //var data = "<br>Dropship Feed Error: You must wait 2 hours between product feed requests.";
+                // var data = "<br>Dropship Feed Error: You must wait 2 hours between product feed requests.";
                 var data = feedService.DownLoadStringData(requestUrl);
                 if (data.Length > 0)
                 {
                     if (data.ToUpper() == "<br>Dropship Feed Error: You must wait 2 hours between product feed requests.".ToUpper())
                     {
-                        var messageList = new List<string>();
-                        messageList.Add(data);
-                        emailService.NotifyFileCreation(messageList, "ERROR: Puck Product File Creation");
+
+                        messageList.Add(new KeyValuePair<string, string>($"CreateProductFile#{Guid.NewGuid()}", $"Product File Result: {data}"));
                         return;
 
-                        //using (var reader = new StreamReader(@"D:\GIT\puckatorFeedLoader\File\Product\Product-202003281601363691.csv"))
+
+                        //using (var reader = new StreamReader(@"D:\GIT\puckatorFeedLoader\File\Product\Product.csv"))
                         //{
                         //    StringBuilder sb = new StringBuilder();
                         //    while (!reader.EndOfStream)
@@ -181,10 +188,9 @@ namespace PuckatorFeedCreator
 
                         if (rowSkip > 2)
                         {
-                            Regex CSVParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
+
+                            Regex CSVParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
                             String[] productData = CSVParser.Split(item);
-
-
                             if (productData.Length != 13)
                             {
                                 continue;
@@ -222,12 +228,13 @@ namespace PuckatorFeedCreator
                             az.AddBlob(filePath, ProductDestinationContainer, fileName);
                         }
 
-                        var messageList = new List<string>();
-                        messageList.Add($"New Product File Created @ { filePath} With Product Count: { dt.Rows.Count}");
-                        messageList.Add(Environment.NewLine);
-                        messageList.Add($"New Product Blob With Name: {fileName} Has Been Uploaded To Container: {ProductDestinationContainer}");
+                        messageList.Add(new KeyValuePair<string, string>($"CreateProductFile#{Guid.NewGuid()}", $"New Product File Result"));
+                        messageList.Add(new KeyValuePair<string, string>($"CreateProductFile#{Guid.NewGuid()}", Environment.NewLine));
+                        messageList.Add(new KeyValuePair<string, string>($"CreateProductFile#{Guid.NewGuid()}", $"New Product File Created @ { filePath} With Product Count: { dt.Rows.Count}"));
+                        messageList.Add(new KeyValuePair<string, string>($"CreateProductFile#{Guid.NewGuid()}", Environment.NewLine));
+                        messageList.Add(new KeyValuePair<string, string>($"CreateProductFile#{Guid.NewGuid()}", $"New Product Blob With Name: {fileName} Has Been Uploaded To Container: {ProductDestinationContainer}"));
 
-                        emailService.NotifyFileCreation(messageList, "Puck Product File Creation");
+
                     }
                     catch (Exception ex)
                     {
@@ -252,7 +259,7 @@ namespace PuckatorFeedCreator
             try
             {
                 productCategoryFileCreationTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                log.Info($"CreateProductFile load has been ticked @ {DateTime.Now.ToLongTimeString()}");
+                log.Info($"CreateCategoryFileFile load has been ticked @ {DateTime.Now.ToLongTimeString()}");
                 string requestUrl = $"{categoryUrl}?email={UserName}&passwd={password}&action=full";
                 var data = feedService.DownLoadStringData(requestUrl);
                 if (data.Length > 0)
@@ -305,14 +312,12 @@ namespace PuckatorFeedCreator
                             az.AddBlob(filePath, CategoryDestinationContainer, fileName);
                         }
 
-                        var messageList = new List<string>
-                            {
-                                $"New Product Category File Created @ { filePath} With Category Count: { dt.Rows.Count}",
-                                Environment.NewLine,
-                                $"New Product Category Blob With Name: {fileName} Has Been Uploaded To Container: {CategoryDestinationContainer}"
-                            };
+                        messageList.Add(new KeyValuePair<string, string>($"CreateCategoryFileFile#{Guid.NewGuid()}", $"New Product Category File Result"));
+                        messageList.Add(new KeyValuePair<string, string>($"CreateCategoryFileFile#{Guid.NewGuid()}", Environment.NewLine));
+                        messageList.Add(new KeyValuePair<string, string>($"CreateCategoryFileFile#{Guid.NewGuid()}", $"New Product Category File Created @ { filePath } With Category Count: { dt.Rows.Count}"));
+                        messageList.Add(new KeyValuePair<string, string>($"CreateCategoryFileFile#{Guid.NewGuid()}", Environment.NewLine));
+                        messageList.Add(new KeyValuePair<string, string>($"CreateCategoryFileFile#{Guid.NewGuid()}", $"New Product Category Blob With Name: {fileName} Has Been Uploaded To Container: {CategoryDestinationContainer}"));
 
-                        emailService.NotifyFileCreation(messageList, "Puck Product Category File Creation");
                     }
                     catch (Exception ex)
                     {
@@ -370,18 +375,17 @@ namespace PuckatorFeedCreator
                         az.AddBlob(filePath, ImageDestinationContainer, fileName);
                     }
 
-                    var messageList = new List<string>
-                            {
-                                $"New Product Image File Created @ { filePath} With",
-                                Environment.NewLine,
-                                $"New Product Image Blob With Name: {fileName} Has Been Uploaded To Container: {ImageDestinationContainer}"
-                            };
-
-                    emailService.NotifyFileCreation(messageList, "Puck Product Image File Creation");
+                    messageList.Add(new KeyValuePair<string, string>($"CreateImageFile#{Guid.NewGuid()}", $"New Product Image File Result"));
+                    messageList.Add(new KeyValuePair<string, string>($"CreateImageFile#{Guid.NewGuid()}", Environment.NewLine));
+                    messageList.Add(new KeyValuePair<string, string>($"CreateImageFile#{Guid.NewGuid()}", $"New Product Image File Created @ { filePath}"));
+                    messageList.Add(new KeyValuePair<string, string>($"CreateImageFile#{Guid.NewGuid()}", Environment.NewLine));
+                    messageList.Add(new KeyValuePair<string, string>($"CreateImageFile#{Guid.NewGuid()}", $"New Product Image Blob With Name: {fileName} Has Been Uploaded To Container: {ImageDestinationContainer}"));
                 }
                 else
                 {
                     log.Info("File not found : image_paths.csv");
+                    messageList.Add(new KeyValuePair<string, string>($"CreateImageFile#{Guid.NewGuid()}", $"New Product Image File Result"));
+                    messageList.Add(new KeyValuePair<string, string>($"CreateImageFile#{Guid.NewGuid()}", "File not found : image_paths.csv"));
                 }
 
             }
@@ -432,20 +436,20 @@ namespace PuckatorFeedCreator
                     {
                         az.AddBlob(filePath, BarcodeDestinationContainer, fileName);
                     }
+                    
 
-                    var messageList = new List<string>
-                            {
-                                $"New Product Code File Created @ { filePath} With",
-                                Environment.NewLine,
-                                $"New Product Code Blob With Name: {fileName} Has Been Uploaded To Container: {BarcodeDestinationContainer}"
-                            };
-
-                    emailService.NotifyFileCreation(messageList, "Puck Product Code File Creation");
+                    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", $"New Product Code File Result"));
+                    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", Environment.NewLine));
+                    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", $"New Product Code File Created @ { filePath}"));
+                    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", Environment.NewLine));
+                    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", $"New Product Code Blob With Name: {fileName} Has Been Uploaded To Container: {BarcodeDestinationContainer}"));
 
                 }
                 else
                 {
                     log.Info("File not found : barcodes.csv");
+                    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", $"New Product Code File Result"));
+                    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", "File not found : barcodes.csv"));
                 }
 
             }
@@ -456,6 +460,38 @@ namespace PuckatorFeedCreator
             finally
             {
                 productBarcodeFileCreationTimer.Change(pollInterval, pollInterval);
+            }
+        }
+        private static void SendNotification(object state)
+        {
+            try
+            {
+                notificationTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                log.Info($"SendNotification load has been ticked @ {DateTime.Now.ToLongTimeString()}");
+
+                var step1 = messageList.Where(x => x.Key.Contains("CreateCategoryFileFile"));
+                var step2 = messageList.Where(x => x.Key.Contains("CreateProductFile"));
+                var step3 = messageList.Where(x => x.Key.Contains("CreateImageFile"));
+                var step4 = messageList.Where(x => x.Key.Contains("CreateBarcodeFile"));
+
+
+                if (step1.Count() > 0 && step2.Count() > 0 && step3.Count() > 0 && step4.Count() > 0)
+                {
+                    emailService.NotifyFileCreation(messageList, "Puck File Creation");
+                    messageList = new List<KeyValuePair<string, string>>();
+                }
+
+                
+
+
+            }
+            catch (Exception ex)
+            {
+                emailService.NotifyException(ex.Message, "EXCEPTION: Puck Product Code File Creation");
+            }
+            finally
+            {
+                notificationTimer.Change(pollInterval, pollInterval);
             }
         }
         private static void CreateProductImageFile()
@@ -519,7 +555,6 @@ namespace PuckatorFeedCreator
                 Console.WriteLine(ex.Message);
             }
         }
-
         private static void LoadProductBarCodeData(bool loadFromUrl)
         {
             try

@@ -107,6 +107,23 @@ namespace PuckatorService
             EmailBySMTP(System.Configuration.ConfigurationManager.AppSettings["SMTP_TO"], System.Configuration.ConfigurationManager.AppSettings["SMTP_FROM"], html, subject);
         }
 
+        public void NotifyFileCreation(List<KeyValuePair<string, string>> messageLine, string subject)
+        {
+            StringBuilder sb = new StringBuilder().AppendLine($"DateTime: {DateTime.Now}");
+            foreach (var item in messageLine)
+            {
+                sb.AppendLine(item.Value);
+            }
+
+            Dictionary<string, string> param = new Dictionary<string, string>
+            {
+                { "NAME", System.Configuration.ConfigurationManager.AppSettings["SMTP_TO_NAME"] },
+                { "MESSAGE", sb.ToString()}
+            };
+            string html = GetHtml(Path.Combine(Common.GetBaseDirectory(), System.Configuration.ConfigurationManager.AppSettings["mxTemplatePath"], "tmpDefault.html"), param);
+            EmailBySMTP(System.Configuration.ConfigurationManager.AppSettings["SMTP_TO"], System.Configuration.ConfigurationManager.AppSettings["SMTP_FROM"], html, subject);
+        }
+
         public void NotifyException(string data, string subject)
         {
             var message = $"DateTime: {DateTime.Now} {Environment.NewLine} {data.ToUpper()}";

@@ -38,15 +38,22 @@ namespace FeedFunctionApp
 
                 string data = sb.ToString();
                 var raw = data.Split('\n');
+
+                List<Product> productList = new List<Product>();
+
+                List<string> errorProductList = new List<string>();
+
                 foreach (var item in raw)
                 {
 
-                    Regex CSVParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
+                    //Regex CSVParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
+                    Regex CSVParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
                     string[] rawData = CSVParser.Split(item);
 
 
                     if (rawData.Length != 13)
                     {
+                        errorProductList.Add(rawData.GetValue(0).ToString());
                         continue;
                     }
 
@@ -67,6 +74,14 @@ namespace FeedFunctionApp
                         ImagesUrl = Common.GetString(rawData.GetValue(12).ToString())
                     };
 
+                    productList.Add(Obj);
+
+                   
+                }
+
+
+                foreach (var Obj in productList)
+                {
                     try
                     {
 
