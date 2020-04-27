@@ -59,9 +59,9 @@ namespace PuckatorFeedCreator
         private static SettingList _settingList = null;
         private static List<KeyValuePair<string, string>> messageList;
 
-        private const int pollInterval = 120000; //120 seconds
+        //private const int pollInterval = 120000; //120 seconds
         //private const int pollInterval = 600000; // 10 minutes
-        //private const int pollInterval = 10800000; // 3 HRS
+        private const int pollInterval = 10800000; // 3 HRS
 
 
 
