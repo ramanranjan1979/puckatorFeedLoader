@@ -45,13 +45,47 @@ namespace PuckatorService
             return value.ToString("yyyyMMddHHmmssffff");
         }
 
-        public static  async Task<Stream> GetImageAsStream(string urlImage, string urlBase)
+        public static async Task<Stream> GetImageAsStream(string urlImage, string urlBase)
         {
             var client = new HttpClient();
             client.BaseAddress = new Uri(urlBase);
             var response = await client.GetAsync(urlImage);
             return await response.Content.ReadAsStreamAsync();
         }
+
+        public static double SaveStreamAsFile(string filePath, Stream inputStream, string fileName)
+        {
+            double size = ConvertBytesKilobytes(inputStream.Length);
+            DirectoryInfo info = new DirectoryInfo(filePath);
+            if (!info.Exists)
+            {
+                info.Create();
+            }
+
+            string path = Path.Combine(filePath, fileName);
+            using (FileStream outputFileStream = new FileStream(path, FileMode.Create))
+            {
+                inputStream.CopyTo(outputFileStream);
+            }
+
+            return size;
+        }
+
+        public static double ConvertBytesToMegabytes(long length)
+        {
+            return Math.Round((length / 1024f) / 1024f);
+        }
+
+        public static double ConvertKilobytesToMegabytes(long length)
+        {
+            return Math.Round(length / 1024f);
+        }
+
+        public static double ConvertBytesKilobytes(long length)
+        {
+            return Math.Round((length / 1024f));
+        }
+
     }
 
     public enum LogType

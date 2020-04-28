@@ -340,10 +340,13 @@ namespace FeedFunctionApp
                             var isActive = bool.Parse(dbAccess.GetRowValue(row, "Active"));
 
                             Stream fs = await Common.GetImageAsStream(blobName, @"http://www.puckator-dropship.co.uk/gifts/images/");
-                            using var az = new AzureService(Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process));
-                            var url = await az.AddBlob(fs, containerName, blobName);
 
-                            await dbAccess.UpsertProductImage(queueItem, blobName, imageNumber, isMain, isActive, DateTime.Now, url);
+                            if (Common.ConvertBytesKilobytes(fs.Length) > 0)
+                            {
+                                using var az = new AzureService(Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process));
+                                var url = await az.AddBlob(fs, containerName, blobName);
+                                await dbAccess.UpsertProductImage(queueItem, blobName, imageNumber, isMain, isActive, DateTime.Now, url);
+                            }
                         }
 
                         catch (Exception ex)
@@ -353,6 +356,8 @@ namespace FeedFunctionApp
                     }
                 }
             }
+
+            //NO Need : Looks like message is getting deleted after been served
 
             //if (queueItem.Length > 0)
             //{

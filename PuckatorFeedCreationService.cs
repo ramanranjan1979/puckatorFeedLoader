@@ -67,6 +67,7 @@ namespace PuckatorFeedCreator
 
         public void Start()
         {
+
             log.Info("PuckatorFeedCreationService service has started");
 
             Setup();
@@ -436,7 +437,7 @@ namespace PuckatorFeedCreator
                     {
                         az.AddBlob(filePath, BarcodeDestinationContainer, fileName);
                     }
-                    
+
 
                     messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", $"New Product Code File Result"));
                     messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", Environment.NewLine));
@@ -481,7 +482,7 @@ namespace PuckatorFeedCreator
                     messageList = new List<KeyValuePair<string, string>>();
                 }
 
-                
+
 
 
             }
