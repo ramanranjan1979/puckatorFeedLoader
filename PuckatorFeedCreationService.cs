@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using static PuckatorService.GoogleDriveService;
 
 namespace PuckatorFeedCreator
 {
@@ -59,15 +60,14 @@ namespace PuckatorFeedCreator
         private static SettingList _settingList = null;
         private static List<KeyValuePair<string, string>> messageList;
 
-        //private const int pollInterval = 120000; //120 seconds
+        private const int pollInterval = 10000; //10 seconds
         //private const int pollInterval = 600000; // 10 minutes
-        private const int pollInterval = 10800000; // 3 HRS
+        //private const int pollInterval = 10800000; // 3 HRS
 
 
 
         public void Start()
         {
-
             log.Info("PuckatorFeedCreationService service has started");
 
             Setup();
@@ -75,6 +75,21 @@ namespace PuckatorFeedCreator
             LoadSetting();
 
             LoadTimer();
+        }
+
+        private static void PullBarcodCSV()
+        {
+            using (var gs = new GoogleDriveService())
+            {
+                var ds = gs.AuthenticateOauth(@"D:\GIT\puckatorFeedLoader\PuckatorService\Repo\client_secret_152790197819-vvjvjer2o0muva5h2ne55phgmmtgb3ru.apps.googleusercontent.com.json", "modizson");
+                var files = ListFiles(ds, new FilesListOptionalParms() { Q = "name contains 'barcodes.csv'", fields = "*" });
+                foreach (var item in files.Files)
+                {
+                    // download each file
+                    gs.DownloadFile(ds, item, string.Format(@"C:\FilesFromGoogleDrive\{0}", Common.GetFileNameWithTimestampAppended(item.Name)));
+                }
+
+            }
         }
 
         private void LoadSetting()
@@ -123,11 +138,11 @@ namespace PuckatorFeedCreator
 
         private static void LoadTimer()
         {
-            productFileCreationTimer = new Timer(new TimerCallback(CreateProductFile), null, 0, pollInterval);
-            productCategoryFileCreationTimer = new Timer(new TimerCallback(CreateCategoryFileFile), null, 0, pollInterval);
-            productImageFileCreationTimer = new Timer(new TimerCallback(CreateImageFile), null, 0, pollInterval);
+            //productFileCreationTimer = new Timer(new TimerCallback(CreateProductFile), null, 0, pollInterval);
+            //productCategoryFileCreationTimer = new Timer(new TimerCallback(CreateCategoryFileFile), null, 0, pollInterval);
+            //productImageFileCreationTimer = new Timer(new TimerCallback(CreateImageFile), null, 0, pollInterval);
             productBarcodeFileCreationTimer = new Timer(new TimerCallback(CreateBarcodeFile), null, 0, pollInterval);
-            notificationTimer = new Timer(new TimerCallback(SendNotification), null, 0, pollInterval);
+            //notificationTimer = new Timer(new TimerCallback(SendNotification), null, 0, pollInterval);
         }
 
         private static void CreateProductFile(object state)
@@ -404,54 +419,56 @@ namespace PuckatorFeedCreator
             try
             {
                 productBarcodeFileCreationTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                log.Info($"CreateBarcodeFile load has been ticked @ {DateTime.Now.ToLongTimeString()}");
-                if (File.Exists(Path.Combine(ProductCode_SourceFolder, "barcodes.csv"))) // TO DO : Pull this from some storage like dropbox or cloud or ftp
-                {
-                    StringBuilder sb = new StringBuilder();
-                    using (var reader = new StreamReader(Path.Combine(ProductCode_SourceFolder, "barcodes.csv")))
-                    {
-                        while (!reader.EndOfStream)
-                        {
-                            var line = reader.ReadLine();
-                            sb.AppendLine(line);
-                        }
-                    }
+                //log.Info($"CreateBarcodeFile load has been ticked @ {DateTime.Now.ToLongTimeString()}");
+                //if (File.Exists(Path.Combine(ProductCode_SourceFolder, "barcodes.csv"))) // TO DO : Pull this from some storage like dropbox or cloud or ftp
+                //{
+                //    StringBuilder sb = new StringBuilder();
+                //    using (var reader = new StreamReader(Path.Combine(ProductCode_SourceFolder, "barcodes.csv")))
+                //    {
+                //        while (!reader.EndOfStream)
+                //        {
+                //            var line = reader.ReadLine();
+                //            sb.AppendLine(line);
+                //        }
+                //    }
 
-                    var fileName = $"Barcode-{Common.GetCurrentTimestamp()}.csv";
-                    //Create a file for blob
-                    try
-                    {
-                        File.WriteAllText(Path.Combine(ProductCode_SourceFolder, fileName), sb.ToString());
-                    }
-                    catch (Exception ex)
-                    {
-                        emailService.NotifyException(ex.Message, "EXCEPTION: Puck Product Code File Creation");
-                    }
+                //    var fileName = $"Barcode-{Common.GetCurrentTimestamp()}.csv";
+                //    //Create a file for blob
+                //    try
+                //    {
+                //        File.WriteAllText(Path.Combine(ProductCode_SourceFolder, fileName), sb.ToString());
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        emailService.NotifyException(ex.Message, "EXCEPTION: Puck Product Code File Creation");
+                //    }
 
-                    File.Delete(Path.Combine(ProductCode_SourceFolder, "barcodes.csv"));
+                //    File.Delete(Path.Combine(ProductCode_SourceFolder, "barcodes.csv"));
 
-                    // Upload blob
-                    var filePath = Path.Combine(ProductCode_SourceFolder, fileName);
+                //    // Upload blob
+                //    var filePath = Path.Combine(ProductCode_SourceFolder, fileName);
 
-                    using (var az = new AzureService())
-                    {
-                        az.AddBlob(filePath, BarcodeDestinationContainer, fileName);
-                    }
+                //    using (var az = new AzureService())
+                //    {
+                //        az.AddBlob(filePath, BarcodeDestinationContainer, fileName);
+                //    }
 
 
-                    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", $"New Product Code File Result"));
-                    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", Environment.NewLine));
-                    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", $"New Product Code File Created @ { filePath}"));
-                    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", Environment.NewLine));
-                    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", $"New Product Code Blob With Name: {fileName} Has Been Uploaded To Container: {BarcodeDestinationContainer}"));
+                //    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", $"New Product Code File Result"));
+                //    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", Environment.NewLine));
+                //    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", $"New Product Code File Created @ { filePath}"));
+                //    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", Environment.NewLine));
+                //    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", $"New Product Code Blob With Name: {fileName} Has Been Uploaded To Container: {BarcodeDestinationContainer}"));
 
-                }
-                else
-                {
-                    log.Info("File not found : barcodes.csv");
-                    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", $"New Product Code File Result"));
-                    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", "File not found : barcodes.csv"));
-                }
+                //}
+                //else
+                //{
+                //    log.Info("File not found : barcodes.csv");
+                //    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", $"New Product Code File Result"));
+                //    messageList.Add(new KeyValuePair<string, string>($"CreateBarcodeFile#{Guid.NewGuid()}", "File not found : barcodes.csv"));
+                //}
+
+                PullBarcodCSV();
 
             }
             catch (Exception ex)
